@@ -6,6 +6,10 @@ const TransactionList = () => {
   // const context = useContext(GlobalContext)
   const { transactions, getTransactions } = useContext(GlobalContext)
 
+  useEffect(()=> {
+    getTransactions()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
 
   // console.log(context)
 
@@ -14,7 +18,7 @@ const TransactionList = () => {
       <h3>History</h3>
       <ul className='list'>
         {transactions.map((trans) => (
-          <Transaction key={trans.id} transaction={trans} />
+          <Transaction key={trans._id} transaction={trans} />
         ))}
       </ul>
     </>

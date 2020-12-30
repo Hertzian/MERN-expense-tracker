@@ -26,47 +26,37 @@ export const GlobalProvider = ({ children }) => {
   // delete
   async function deleteTransaction(id) {
     try {
-      const config = {
-        headers: { 'Content-Type': 'Application/json' },
-      }
+      await axios.delete(`/api/v1/transactions/${id}`)
 
-      const res = await axios.delete(`/api/v1/transactions/${id}`, config)
-
-      dispatch({ type: 'DELETE_TRANSACTION', payload: res.data.data })
+      dispatch({ type: 'DELETE_TRANSACTION', payload: id })
     } catch (err) {
-      // dispatch({ type: 'FAIL_TRANSACTION', payload: res.data.error })
+      dispatch({ type: 'FAIL_TRANSACTION', payload: err.response.data.error })
     }
   }
 
   // add
   async function addTransaction(transaction) {
     try {
-      const config = {
-        headers: { 'Content-Type': 'Application/json' },
-      }
+      const config = { headers: { 'Content-Type': 'Application/json' } }
 
       const res = await axios.post('/api/v1/transactions', transaction, config)
 
       dispatch({ type: 'ADD_TRANSACTION', payload: res.data.data })
     } catch (err) {
-      // dispatch({ type: 'FAIL_TRANSACTION', payload: res.data.error })
+      dispatch({ type: 'FAIL_TRANSACTION', payload: err.response.data.error })
     }
   }
 
   // get all
   async function getTransactions() {
     try {
-      const config = {
-        headers: { 'Content-Type': 'Application/json' },
-      }
-
-      const res = await axios.get('/api/v1/transactions', config)
+      const res = await axios.get('/api/v1/transactions')
 
       console.log(res.data)
 
       dispatch({ type: 'GET_ALL_TRANSACTIONS', payload: res.data.data })
     } catch (err) {
-      dispatch({ type: 'FAIL_TRANSACTION', payload: error.response.data.error })
+      dispatch({ type: 'FAIL_TRANSACTION', payload: err.response.data.error })
     }
   }
 
@@ -93,7 +83,7 @@ export const AppReducer = (state, action) => {
       return {
         ...state,
         transactions: state.transactions.filter(
-          (trans) => trans.id !== action.payload
+          (trans) => trans._id !== action.payload
         ),
       }
     case 'ADD_TRANSACTION':
@@ -110,7 +100,7 @@ export const AppReducer = (state, action) => {
     case 'FAIL_TRANSACTION':
       return {
         ...state,
-        error: action.payload
+        error: action.payload,
       }
     default:
       return state
