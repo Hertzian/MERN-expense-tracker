@@ -1,4 +1,5 @@
 import { createContext, useReducer } from 'react'
+import axios from 'axios'
 // import AppReducer from './AppReducer'
 
 // initial state
@@ -9,7 +10,9 @@ const initialState = {
   //   { id: 3, text: 'Book', amount: -10 },
   //   { id: 4, text: 'Camera', amount: 150 },
   // ],
-  transactions: []
+  transactions: [],
+  error: null,
+  loading: true,
 }
 
 // create context
@@ -20,20 +23,62 @@ export const GlobalProvider = ({ children }) => {
   const [state, dispatch] = useReducer(AppReducer, initialState)
 
   // actions
-  function deleteTransaction(id) {
-    dispatch({ type: 'DELETE_TRANSACTION', payload: id })
+  // delete
+  async function deleteTransaction(id) {
+    try {
+      const config = {
+        headers: { 'Content-Type': 'Application/json' },
+      }
+
+      const res = await axios.delete(`/api/v1/transactions/${id}`, config)
+
+      dispatch({ type: 'DELETE_TRANSACTION', payload: res.data.data })
+    } catch (err) {
+      // dispatch({ type: 'FAIL_TRANSACTION', payload: res.data.error })
+    }
   }
 
-  function addTransaction(transaction) {
-    dispatch({ type: 'ADD_TRANSACTION', payload: transaction })
+  // add
+  async function addTransaction(transaction) {
+    try {
+      const config = {
+        headers: { 'Content-Type': 'Application/json' },
+      }
+
+      const res = await axios.post('/api/v1/transactions', transaction, config)
+
+      dispatch({ type: 'ADD_TRANSACTION', payload: res.data.data })
+    } catch (err) {
+      // dispatch({ type: 'FAIL_TRANSACTION', payload: res.data.error })
+    }
+  }
+
+  // get all
+  async function getTransactions() {
+    try {
+      const config = {
+        headers: { 'Content-Type': 'Application/json' },
+      }
+
+      const res = await axios.get('/api/v1/transactions', config)
+
+      console.log(res.data)
+
+      dispatch({ type: 'GET_ALL_TRANSACTIONS', payload: res.data.data })
+    } catch (err) {
+      dispatch({ type: 'FAIL_TRANSACTION', payload: error.response.data.error })
+    }
   }
 
   return (
     <GlobalContext.Provider
       value={{
         transactions: state.transactions,
+        error: state.error,
+        loading: state.loading,
         deleteTransaction,
-        addTransaction
+        addTransaction,
+        getTransactions,
       }}
     >
       {children}
@@ -47,12 +92,25 @@ export const AppReducer = (state, action) => {
     case 'DELETE_TRANSACTION':
       return {
         ...state,
-        transactions: state.transactions.filter(trans => trans.id !== action.payload)
+        transactions: state.transactions.filter(
+          (trans) => trans.id !== action.payload
+        ),
       }
     case 'ADD_TRANSACTION':
       return {
         ...state,
-        transactions: [action.payload, ...state.transactions]
+        transactions: [...state.transactions, action.payload],
+      }
+    case 'GET_ALL_TRANSACTIONS':
+      return {
+        ...state,
+        loading: false,
+        transactions: action.payload,
+      }
+    case 'FAIL_TRANSACTION':
+      return {
+        ...state,
+        error: action.payload
       }
     default:
       return state
