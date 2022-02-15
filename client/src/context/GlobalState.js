@@ -12,7 +12,7 @@ const initialState = {
   // ],
   transactions: [],
   error: null,
-  loading: true,
+  loading: true
 }
 
 // create context
@@ -68,7 +68,7 @@ export const GlobalProvider = ({ children }) => {
         loading: state.loading,
         deleteTransaction,
         addTransaction,
-        getTransactions,
+        getTransactions
       }}
     >
       {children}
@@ -84,23 +84,23 @@ export const AppReducer = (state, action) => {
         ...state,
         transactions: state.transactions.filter(
           (trans) => trans._id !== action.payload
-        ),
+        )
       }
     case 'ADD_TRANSACTION':
       return {
         ...state,
-        transactions: [...state.transactions, action.payload],
+        transactions: [...state.transactions, action.payload]
       }
     case 'GET_ALL_TRANSACTIONS':
       return {
         ...state,
         loading: false,
-        transactions: action.payload,
+        transactions: action.payload
       }
     case 'FAIL_TRANSACTION':
       return {
         ...state,
-        error: action.payload,
+        error: action.payload
       }
     default:
       return state
